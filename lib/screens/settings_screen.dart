@@ -30,16 +30,16 @@ class SettingsScreen extends StatelessWidget {
                 ),
                 ListTile(
                   title: const Text("Puzzles"),
-                  subtitle: Text("Highest level unlocked: ${settings.highestPuzzleLvl}"),
+                  subtitle: Text("Number of puzzles completed: ${settings.highestPuzzleLvl}"),
                 ),
                 const ListTile(
                   title: Text("About"),
                   minVerticalPadding: 50,
-                  subtitle: Text("Chess puzzles, heavily inspired by the physical Solitaire " +
-                    "Chess by Thinkfun, built as a side project while learning Flutter.\n\n" +
+                  subtitle: Text("Chess puzzles, heavily inspired by the Solitaire Chess " +
+                    "from Thinkfun, built as a side project while learning Flutter.\n\n" +
                     "Credits:\n" +
                     "  - Thinkfun Solitaire Chess\n" +
-                    "  - chess icons from Wikimedia Commons\n\n" +
+                    "  - Wikimedia Commons for chess icons\n\n" +
                     "Source code:\n" +
                     "https://github.com/ikumen/solo-chess"
                   ),

@@ -9,13 +9,6 @@ class ThemeProvider with ChangeNotifier {
         foregroundColor: Colors.black,
         backgroundColor: lightBackgroundColor,
       ),
-      // scaffoldBackgroundColor: lightBackgroundColor,
-      navigationBarTheme: NavigationBarThemeData(
-        backgroundColor: Colors.purple
-      ),
-      bottomNavigationBarTheme: const BottomNavigationBarThemeData(
-backgroundColor: Colors.green
-      )
     );
 
   static final ThemeData darkTheme = ThemeData(

@@ -8,6 +8,10 @@ import 'package:solo_chess/providers/settings_provider.dart';
 import 'package:solo_chess/screens/puzzle_list_screen.dart';
 import 'package:solo_chess/screens/settings_screen.dart';
 
+enum DialogResponse {
+  replay, replayAll, ok, next
+}
+
 class PuzzleScreen extends StatefulWidget {
   final PuzzleProvider _puzzleProvider;
   final SettingsProvider _settingsProvider;
@@ -29,26 +33,46 @@ class _PuzzleScreenState extends State<PuzzleScreen> {
     _game = Game(widget._puzzleProvider.puzzle(_puzzleId));
   }
 
+  _showReplayOrNextPuzzleDialog() {
+    return AlertDialog(
+      title: Text("Puzzle ${_puzzleId + 1} Complete"),
+      content: const Text("Continue to next puzzle or play this puzzle again?"),
+      actions: [
+        TextButton(
+            onPressed: () => Navigator.pop(context, DialogResponse.replay),
+            child: const Text('Replay')
+        ),
+        TextButton(
+            onPressed: () => Navigator.pop(context, DialogResponse.next),
+            child: const Text('Next')
+        )
+      ],
+    );
+  }
+
+  _showAllPuzzlesCompleteDialog() {
+    return AlertDialog(
+      title: const Text("Congratulations"),
+      content: Text("You've completed all ${widget._puzzleProvider.count()} puzzles."),
+      actions: [
+        TextButton(onPressed: () => Navigator.pop(context, DialogResponse.replayAll),
+            child: const Text("Replay All")),
+        TextButton(onPressed: () => Navigator.pop(context, DialogResponse.ok),
+            child: const Text("See Completed"))
+      ],
+    );
+  }
+
   Future<dynamic> _showPuzzleCompleteDialog() async {
     return showDialog(
-        context: context,
-        barrierDismissible: false,
-        builder: (BuildContext context) {
-          return AlertDialog(
-            title: Text("Puzzle ${_puzzleId + 1} Complete"),
-            content: const Text("Continue to next puzzle or play this puzzle again?"),
-            actions: [
-              TextButton(
-                  onPressed: () => Navigator.pop(context, 'replay'),
-                  child: const Text('Replay')
-              ),
-              TextButton(
-                  onPressed: () => Navigator.pop(context, 'next'),
-                  child: const Text('Next')
-              )
-            ],
-          );
-        });
+      context: context,
+      barrierDismissible: false,
+      builder: (BuildContext context) {
+        print(_puzzleId);
+        return _puzzleId == widget._puzzleProvider.count()-1
+            ? _showAllPuzzlesCompleteDialog()
+            : _showReplayOrNextPuzzleDialog();
+      });
   }
 
   void _undo() {
@@ -79,15 +103,23 @@ class _PuzzleScreenState extends State<PuzzleScreen> {
     });
 
     _showPuzzleCompleteDialog().then((resp) {
-      if (resp == "replay") {
+      if (resp == DialogResponse.replayAll) {
+        _loadPuzzle(0);
+      } else if (resp == DialogResponse.replay) {
         _replayPuzzle();
-      } else {
+      } else if (resp == DialogResponse.next) {
         _nextPuzzle();
+      } else {
+        _showPuzzleListScreen();
       }
     });
   }
 
   void _onSelectSquare(Position position) {
+    if (_game.isComplete) {
+      return;
+    }
+
     // Initially select a "from" square/piece
     if (_game.state.selectedPosition == null) {
       setState(() => _game.selectPosition(position));
@@ -127,6 +159,20 @@ class _PuzzleScreenState extends State<PuzzleScreen> {
     );
   }
 
+  _showPuzzleListScreen() {
+    Navigator.push(context,
+      MaterialPageRoute(builder: (context) =>
+          PuzzleListScreen(
+            widget._puzzleProvider,
+            widget._settingsProvider,
+          ))
+    ).then((puzzleId) {
+      if (puzzleId != null && puzzleId >= 0 && puzzleId <= widget._settingsProvider.highestPuzzleLvl) {
+        _loadPuzzle(puzzleId);
+      }
+    });
+  }
+
   @override
   Widget build(BuildContext context) {
     MediaQueryData mq = MediaQuery.of(context);
@@ -138,10 +184,6 @@ class _PuzzleScreenState extends State<PuzzleScreen> {
       ),
       body: Column(
         children: [
-          // Padding(
-          //   padding: const EdgeInsets.fromLTRB(0, 10, 0, 10),
-          //   child: Text("Puzzle ${_puzzleId + 1}", style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold),)
-          // ),
           Board(4, dimension, _game, _onSelectSquare),
           _buildGameNavigation(),
         ],
@@ -150,17 +192,7 @@ class _PuzzleScreenState extends State<PuzzleScreen> {
         currentIndex: 0,
         onTap: (index) {
           if (index == 1) {
-            Navigator.push(context,
-              MaterialPageRoute(builder: (context) =>
-                PuzzleListScreen(
-                  widget._puzzleProvider,
-                  widget._settingsProvider,
-              ))
-            ).then((puzzleId) {
-              if (puzzleId != null && puzzleId >= 0 && puzzleId <= widget._settingsProvider.highestPuzzleLvl) {
-                _loadPuzzle(puzzleId);
-              }
-            });
+            _showPuzzleListScreen();
           } else if (index == 2) {
             Navigator.push(context,
               MaterialPageRoute(builder: (context) => const SettingsScreen())

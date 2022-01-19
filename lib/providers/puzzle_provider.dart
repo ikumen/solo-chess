@@ -100,18 +100,16 @@ class CsvPuzzleSource extends PuzzleSource {
 
   @override
   Future<List<Puzzle>> loadPuzzles() async {
-    print("starting loading of puzzles");
-    List<Puzzle> puzzles = await assetBundle.loadString("assets/puzzles/default.txt").then((data) {
-      return data.split("\n")
+    return await assetBundle.loadString("assets/puzzles/default.txt")
+      .then((data) {
+        return data.split("\n")
           .where((s) => s.trim() != "")
           .map((s) => s.toLowerCase())
           .map((s) => CsvPuzzleSource._parsePuzzle(s))
           .where((puzzle) => puzzle != null)
           .map((puzzle) => puzzle!)
           .toList();
-    });
-    print("loaded puzzles $puzzles");
-    return puzzles;
+      });
   }
 }
 

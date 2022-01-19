@@ -8,6 +8,7 @@ class SplashScreen extends StatelessWidget {
   Widget build(BuildContext context) {
     return MaterialApp(
         title: appTitle,
+        debugShowCheckedModeBanner: false,
         home: Container(
             decoration: const BoxDecoration(color: Colors.black87),
             padding: const EdgeInsets.fromLTRB(20, 0, 20, 0),
@@ -15,7 +16,7 @@ class SplashScreen extends StatelessWidget {
                 mainAxisAlignment: MainAxisAlignment.center,
                 crossAxisAlignment: CrossAxisAlignment.center,
                 children: const <Widget>[
-                  Image(image: AssetImage("$imagesBasePath/dark_knight.png"), height: 100,),
+                  Image(image: AssetImage("${imagesBasePath}dark_knight.png"), height: 100,),
                   Text(appTitle, style: TextStyle(decoration: TextDecoration.none, color: Colors.white70)),
                 ]
             )
